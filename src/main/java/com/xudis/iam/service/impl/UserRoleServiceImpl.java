@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -92,6 +93,9 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
             throw new BusinessException("角色不存在");
         }
 
+        // 收集待保存的用户角色关联
+        List<UserRole> userRolesToSave = new ArrayList<>();
+
         // 批量分配
         for (Long userId : dto.getUserIds()) {
             // 验证用户是否存在
@@ -117,10 +121,17 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
             userRole.setCreatedAt(LocalDateTime.now());
             userRole.setUpdatedAt(LocalDateTime.now());
 
-            save(userRole);
+            userRolesToSave.add(userRole);
+        }
 
-            // 清除用户权限缓存
-            cacheService.clearUserPermissionCache(userId);
+        // 批量保存
+        if (!userRolesToSave.isEmpty()) {
+            saveBatch(userRolesToSave);
+            
+            // 清除所有用户的权限缓存
+            for (UserRole userRole : userRolesToSave) {
+                cacheService.clearUserPermissionCache(userRole.getUserId());
+            }
         }
 
         return true;

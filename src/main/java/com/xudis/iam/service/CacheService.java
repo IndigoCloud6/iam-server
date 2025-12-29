@@ -1,5 +1,6 @@
 package com.xudis.iam.service;
 
+import com.xudis.iam.common.CacheKeyConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -136,7 +137,10 @@ public class CacheService {
      * @param userId 用户ID
      */
     public void clearUserPermissionCache(Long userId) {
-        deleteByPattern("user:*:" + userId);
+        delete(CacheKeyConstants.USER_PERMISSIONS + userId);
+        delete(CacheKeyConstants.USER_MENUS + userId);
+        delete(CacheKeyConstants.USER_BUTTONS + userId);
+        delete(CacheKeyConstants.USER_APIS + userId);
     }
 
     /**
@@ -145,7 +149,7 @@ public class CacheService {
      * @param roleId 角色ID
      */
     public void clearRolePermissionCache(Long roleId) {
-        delete("role:permissions:" + roleId);
+        delete(CacheKeyConstants.ROLE_PERMISSIONS + roleId);
         // 同时需要清除所有拥有该角色的用户的权限缓存
         // 这里可以通过查询用户角色关系来清除，或者使用更粗粒度的清除策略
     }
@@ -154,11 +158,11 @@ public class CacheService {
      * 清除所有权限相关缓存
      */
     public void clearAllPermissionCache() {
-        deleteByPattern("user:permissions:*");
-        deleteByPattern("user:menus:*");
-        deleteByPattern("user:buttons:*");
-        deleteByPattern("user:apis:*");
-        deleteByPattern("role:permissions:*");
+        deleteByPattern(CacheKeyConstants.USER_PERMISSIONS + "*");
+        deleteByPattern(CacheKeyConstants.USER_MENUS + "*");
+        deleteByPattern(CacheKeyConstants.USER_BUTTONS + "*");
+        deleteByPattern(CacheKeyConstants.USER_APIS + "*");
+        deleteByPattern(CacheKeyConstants.ROLE_PERMISSIONS + "*");
     }
 
     /**
@@ -168,9 +172,9 @@ public class CacheService {
      */
     public void clearDepartmentTreeCache(Long orgId) {
         if (orgId != null) {
-            delete("department:tree:" + orgId);
+            delete(CacheKeyConstants.DEPARTMENT_TREE + orgId);
         } else {
-            deleteByPattern("department:tree:*");
+            deleteByPattern(CacheKeyConstants.DEPARTMENT_TREE + "*");
         }
     }
 
@@ -178,7 +182,7 @@ public class CacheService {
      * 清除权限树缓存
      */
     public void clearPermissionTreeCache() {
-        delete("permission:tree");
+        delete(CacheKeyConstants.PERMISSION_TREE);
     }
 
     /**
@@ -187,6 +191,7 @@ public class CacheService {
      * @param dictId 字典ID
      */
     public void clearDictCache(Long dictId) {
-        deleteByPattern("dict:*:" + dictId);
+        deleteByPattern(CacheKeyConstants.DICT_ITEMS + dictId + "*");
+        deleteByPattern(CacheKeyConstants.DICT_TREE + dictId + "*");
     }
 }

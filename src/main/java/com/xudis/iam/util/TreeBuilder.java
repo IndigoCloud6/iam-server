@@ -41,8 +41,10 @@ public class TreeBuilder {
         List<T> rootNodes = list.stream()
                 .filter(node -> {
                     ID parentId = getParentIdFunc.apply(node);
-                    return parentId == null ||
-                           (rootId != null && rootId.equals(parentId)) ||
+                    if (parentId == null) {
+                        return true;
+                    }
+                    return (rootId != null && rootId.equals(parentId)) ||
                            (rootId == null && (parentId.equals(0L) || parentId.equals(0)));
                 })
                 .collect(Collectors.toList());
