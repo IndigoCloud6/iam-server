@@ -15,6 +15,7 @@ import com.xudis.iam.service.CacheService;
 import com.xudis.iam.service.RolePermissionService;
 import com.xudis.iam.util.TreeBuilder;
 import com.xudis.iam.vo.RolePermissionTreeVO;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,17 +33,15 @@ import java.util.stream.Collectors;
  * @since 2025/12/29
  */
 @Service
-public class RolePermissionServiceImpl extends ServiceImpl<RolePermissionMapper, RolePermission> 
+@RequiredArgsConstructor
+public class RolePermissionServiceImpl extends ServiceImpl<RolePermissionMapper, RolePermission>
         implements RolePermissionService {
 
-    @Autowired
-    private RoleMapper roleMapper;
+    private final RoleMapper roleMapper;
 
-    @Autowired
-    private PermissionMapper permissionMapper;
+    private final PermissionMapper permissionMapper;
 
-    @Autowired
-    private CacheService cacheService;
+    private final CacheService cacheService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -62,7 +61,7 @@ public class RolePermissionServiceImpl extends ServiceImpl<RolePermissionMapper,
         // 检查是否已分配
         LambdaQueryWrapper<RolePermission> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(RolePermission::getRoleId, dto.getRoleId())
-               .eq(RolePermission::getPermissionId, dto.getPermissionId());
+                .eq(RolePermission::getPermissionId, dto.getPermissionId());
         if (count(wrapper) > 0) {
             throw new BusinessException("角色已拥有该权限");
         }
@@ -111,7 +110,7 @@ public class RolePermissionServiceImpl extends ServiceImpl<RolePermissionMapper,
             // 检查是否已分配
             LambdaQueryWrapper<RolePermission> wrapper = new LambdaQueryWrapper<>();
             wrapper.eq(RolePermission::getRoleId, dto.getRoleId())
-                   .eq(RolePermission::getPermissionId, permissionId);
+                    .eq(RolePermission::getPermissionId, permissionId);
             if (count(wrapper) > 0) {
                 continue; // 跳过已分配的
             }
@@ -141,7 +140,7 @@ public class RolePermissionServiceImpl extends ServiceImpl<RolePermissionMapper,
     public boolean revokePermission(Long roleId, Long permissionId) {
         LambdaQueryWrapper<RolePermission> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(RolePermission::getRoleId, roleId)
-               .eq(RolePermission::getPermissionId, permissionId);
+                .eq(RolePermission::getPermissionId, permissionId);
 
         boolean result = remove(wrapper);
 

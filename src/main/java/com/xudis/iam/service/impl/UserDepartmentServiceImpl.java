@@ -14,6 +14,7 @@ import com.xudis.iam.mapper.DepartmentMapper;
 import com.xudis.iam.mapper.UserDepartmentMapper;
 import com.xudis.iam.mapper.UserMapper;
 import com.xudis.iam.service.UserDepartmentService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,16 +29,14 @@ import java.util.List;
  * @since 2025/12/29
  */
 @Service
-public class UserDepartmentServiceImpl extends ServiceImpl<UserDepartmentMapper, UserDepartment> 
+@RequiredArgsConstructor
+public class UserDepartmentServiceImpl extends ServiceImpl<UserDepartmentMapper, UserDepartment>
         implements UserDepartmentService {
 
-    @Autowired
-    private UserMapper userMapper;
+    private final UserMapper userMapper;
 
-    @Autowired
-    private DepartmentMapper departmentMapper;
+    private final DepartmentMapper departmentMapper;
 
-    @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean assignDepartment(UserDepartmentAssignDTO dto) {
         // 验证用户是否存在
@@ -55,7 +54,7 @@ public class UserDepartmentServiceImpl extends ServiceImpl<UserDepartmentMapper,
         // 检查是否已分配
         LambdaQueryWrapper<UserDepartment> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(UserDepartment::getUserId, dto.getUserId())
-               .eq(UserDepartment::getDepartmentId, dto.getDepartmentId());
+                .eq(UserDepartment::getDepartmentId, dto.getDepartmentId());
         if (count(wrapper) > 0) {
             throw new BusinessException("用户已在该部门");
         }
@@ -64,7 +63,7 @@ public class UserDepartmentServiceImpl extends ServiceImpl<UserDepartmentMapper,
         if (dto.getIsPrimary() != null && dto.getIsPrimary() == 1) {
             LambdaUpdateWrapper<UserDepartment> updateWrapper = new LambdaUpdateWrapper<>();
             updateWrapper.eq(UserDepartment::getUserId, dto.getUserId())
-                        .set(UserDepartment::getIsPrimary, 0);
+                    .set(UserDepartment::getIsPrimary, 0);
             update(updateWrapper);
 
             // 更新用户表的主部门ID
@@ -106,7 +105,7 @@ public class UserDepartmentServiceImpl extends ServiceImpl<UserDepartmentMapper,
         // 验证用户是否已在该部门
         LambdaQueryWrapper<UserDepartment> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(UserDepartment::getUserId, userId)
-               .eq(UserDepartment::getDepartmentId, departmentId);
+                .eq(UserDepartment::getDepartmentId, departmentId);
         UserDepartment userDepartment = getOne(wrapper);
         if (userDepartment == null) {
             throw new BusinessException("用户不在该部门");
@@ -115,7 +114,7 @@ public class UserDepartmentServiceImpl extends ServiceImpl<UserDepartmentMapper,
         // 取消其他主部门
         LambdaUpdateWrapper<UserDepartment> updateWrapper = new LambdaUpdateWrapper<>();
         updateWrapper.eq(UserDepartment::getUserId, userId)
-                    .set(UserDepartment::getIsPrimary, 0);
+                .set(UserDepartment::getIsPrimary, 0);
         update(updateWrapper);
 
         // 设置为主部门
@@ -134,7 +133,7 @@ public class UserDepartmentServiceImpl extends ServiceImpl<UserDepartmentMapper,
         // 检查是否为主部门
         LambdaQueryWrapper<UserDepartment> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(UserDepartment::getUserId, userId)
-               .eq(UserDepartment::getDepartmentId, departmentId);
+                .eq(UserDepartment::getDepartmentId, departmentId);
         UserDepartment userDepartment = getOne(wrapper);
 
         if (userDepartment == null) {
@@ -182,7 +181,7 @@ public class UserDepartmentServiceImpl extends ServiceImpl<UserDepartmentMapper,
         // 检查用户是否在原部门
         LambdaQueryWrapper<UserDepartment> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(UserDepartment::getUserId, dto.getUserId())
-               .eq(UserDepartment::getDepartmentId, dto.getFromDepartmentId());
+                .eq(UserDepartment::getDepartmentId, dto.getFromDepartmentId());
         UserDepartment fromUserDept = getOne(wrapper);
         if (fromUserDept == null) {
             throw new BusinessException("用户不在原部门");
@@ -200,7 +199,7 @@ public class UserDepartmentServiceImpl extends ServiceImpl<UserDepartmentMapper,
         if (count(toWrapper) == 0) {
             // 添加到目标部门
             boolean shouldBePrimary = (dto.getTransferPrimary() != null && dto.getTransferPrimary() && isPrimary);
-            
+
             UserDepartment toUserDept = new UserDepartment();
             toUserDept.setUserId(dto.getUserId());
             toUserDept.setDepartmentId(dto.getToDepartmentId());

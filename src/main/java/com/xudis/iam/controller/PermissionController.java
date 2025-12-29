@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xudis.iam.common.Result;
 import com.xudis.iam.entity.Permission;
 import com.xudis.iam.service.PermissionService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,10 +18,10 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/permission")
+@RequiredArgsConstructor
 public class PermissionController {
 
-    @Autowired
-    private PermissionService permissionService;
+    private final PermissionService permissionService;
 
     /**
      * 查询权限树

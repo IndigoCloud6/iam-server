@@ -10,6 +10,7 @@ import com.xudis.iam.service.UserDepartmentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,10 +25,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/user-department")
 @Tag(name = "用户部门关联管理", description = "用户部门关联管理API")
+@RequiredArgsConstructor
 public class UserDepartmentController {
 
-    @Autowired
-    private UserDepartmentService userDepartmentService;
+    private final UserDepartmentService userDepartmentService;
 
     /**
      * 分配用户到部门

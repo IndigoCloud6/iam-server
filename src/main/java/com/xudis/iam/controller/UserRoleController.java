@@ -11,6 +11,7 @@ import com.xudis.iam.service.UserRoleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,10 +26,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/user-role")
 @Tag(name = "用户角色关联管理", description = "用户角色关联管理API")
+@RequiredArgsConstructor
 public class UserRoleController {
 
-    @Autowired
-    private UserRoleService userRoleService;
+    private final UserRoleService userRoleService;
 
     /**
      * 给用户分配角色

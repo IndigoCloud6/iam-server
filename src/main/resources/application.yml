@@ -13,23 +13,24 @@ spring:
     username: root
     password: root
   
-  jackson:
+  Jackson:
     time-zone: Asia/Shanghai
     date-format: yyyy-MM-dd HH:mm:ss
     default-property-inclusion: non_null
-  
-  # Redis配置
-  redis:
-    host: localhost
-    port: 6379
-    database: 0
-    timeout: 3000ms
-    lettuce:
-      pool:
-        max-active: 8
-        max-wait: -1ms
-        max-idle: 8
-        min-idle: 0
+
+  data:
+    # Redis配置
+    redis:
+      port: 6379
+      database: 0
+      host: localhost
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-wait: -1ms
+          max-idle: 8
+          min-idle: 0
 
 # MyBatis-Plus配置
 mybatis-plus:

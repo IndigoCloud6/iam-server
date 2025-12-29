@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xudis.iam.common.Result;
 import com.xudis.iam.entity.Department;
 import com.xudis.iam.service.DepartmentService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,10 +18,10 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/department")
+@RequiredArgsConstructor
 public class DepartmentController {
 
-    @Autowired
-    private DepartmentService departmentService;
+    private final DepartmentService departmentService;
 
     /**
      * 查询部门树

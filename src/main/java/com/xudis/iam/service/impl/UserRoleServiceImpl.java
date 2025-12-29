@@ -15,6 +15,7 @@ import com.xudis.iam.mapper.UserMapper;
 import com.xudis.iam.mapper.UserRoleMapper;
 import com.xudis.iam.service.CacheService;
 import com.xudis.iam.service.UserRoleService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 用户角色服务实现类
@@ -31,16 +31,14 @@ import java.util.stream.Collectors;
  * @since 2025/12/29
  */
 @Service
+@RequiredArgsConstructor
 public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> implements UserRoleService {
 
-    @Autowired
-    private UserMapper userMapper;
+    private final UserMapper userMapper;
 
-    @Autowired
-    private RoleMapper roleMapper;
+    private final RoleMapper roleMapper;
 
-    @Autowired
-    private CacheService cacheService;
+    private final CacheService cacheService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -127,7 +125,7 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
         // 批量保存
         if (!userRolesToSave.isEmpty()) {
             saveBatch(userRolesToSave);
-            
+
             // 清除所有用户的权限缓存
             for (UserRole userRole : userRolesToSave) {
                 cacheService.clearUserPermissionCache(userRole.getUserId());
@@ -142,7 +140,7 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
     public boolean revokeRole(Long userId, Long roleId, Long departmentId) {
         LambdaQueryWrapper<UserRole> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(UserRole::getUserId, userId)
-               .eq(UserRole::getRoleId, roleId);
+                .eq(UserRole::getRoleId, roleId);
 
         if (departmentId != null) {
             wrapper.eq(UserRole::getDepartmentId, departmentId);
@@ -200,7 +198,7 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
     public boolean hasRole(Long userId, Long roleId, Long departmentId) {
         LambdaQueryWrapper<UserRole> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(UserRole::getUserId, userId)
-               .eq(UserRole::getRoleId, roleId);
+                .eq(UserRole::getRoleId, roleId);
 
         if (departmentId != null) {
             wrapper.eq(UserRole::getDepartmentId, departmentId);

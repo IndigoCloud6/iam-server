@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xudis.iam.common.Result;
 import com.xudis.iam.entity.Organization;
 import com.xudis.iam.service.OrganizationService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,10 +18,10 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/organization")
+@RequiredArgsConstructor
 public class OrganizationController {
 
-    @Autowired
-    private OrganizationService organizationService;
+    private final OrganizationService organizationService;
 
     /**
      * 查询组织树
