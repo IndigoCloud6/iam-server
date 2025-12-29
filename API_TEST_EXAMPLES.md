@@ -357,3 +357,204 @@ curl -X DELETE "http://localhost:8080/api/organization/1"
 4. 状态字段通常: 1-启用/正常, 2-停用/禁用
 5. 逻辑删除字段: isDeleted (0-未删除, 1-已删除)
 6. 乐观锁字段: version (整数，每次更新自动+1)
+
+## 新增API (v2 - 业务逻辑增强)
+
+### 6. 用户角色关联管理API
+
+#### 给用户分配角色
+```bash
+curl -X POST "http://localhost:8080/api/user-role/assign" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": 1,
+    "roleId": 2,
+    "departmentId": 3,
+    "effectiveFrom": "2025-01-01 00:00:00",
+    "effectiveTo": "2025-12-31 23:59:59"
+  }'
+```
+
+#### 批量分配角色
+```bash
+curl -X POST "http://localhost:8080/api/user-role/batch-assign" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userIds": [1, 2, 3],
+    "roleId": 2,
+    "effectiveFrom": "2025-01-01 00:00:00"
+  }'
+```
+
+#### 撤销用户角色
+```bash
+curl -X DELETE "http://localhost:8080/api/user-role/revoke?userId=1&roleId=2"
+```
+
+#### 查询用户的所有角色
+```bash
+curl -X GET "http://localhost:8080/api/user-role/user/1"
+```
+
+#### 查询角色下的所有用户
+```bash
+curl -X GET "http://localhost:8080/api/user-role/role/2?current=1&size=10"
+```
+
+#### 查询用户的生效角色
+```bash
+curl -X GET "http://localhost:8080/api/user-role/effective?userId=1"
+```
+
+#### 更新角色有效期
+```bash
+curl -X PUT "http://localhost:8080/api/user-role/update-validity" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id": 1,
+    "effectiveFrom": "2025-01-01 00:00:00",
+    "effectiveTo": "2026-12-31 23:59:59"
+  }'
+```
+
+### 7. 角色权限关联管理API
+
+#### 给角色分配权限
+```bash
+curl -X POST "http://localhost:8080/api/role-permission/assign" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "roleId": 2,
+    "permissionId": 5,
+    "operationType": "READ",
+    "effectiveFrom": "2025-01-01 00:00:00"
+  }'
+```
+
+#### 批量分配权限
+```bash
+curl -X POST "http://localhost:8080/api/role-permission/batch-assign" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "roleId": 2,
+    "permissionIds": [5, 6, 7, 8]
+  }'
+```
+
+#### 撤销角色权限
+```bash
+curl -X DELETE "http://localhost:8080/api/role-permission/revoke?roleId=2&permissionId=5"
+```
+
+#### 查询角色的所有权限
+```bash
+curl -X GET "http://localhost:8080/api/role-permission/role/2"
+```
+
+#### 查询权限被哪些角色使用
+```bash
+curl -X GET "http://localhost:8080/api/role-permission/permission/5"
+```
+
+#### 获取角色权限树
+```bash
+curl -X GET "http://localhost:8080/api/role-permission/tree/2"
+```
+
+### 8. 用户部门关联管理API
+
+#### 分配用户到部门
+```bash
+curl -X POST "http://localhost:8080/api/user-department/assign" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": 1,
+    "departmentId": 3,
+    "isPrimary": 1,
+    "position": "高级工程师",
+    "jobLevel": "P7",
+    "effectiveFrom": "2025-01-01 00:00:00"
+  }'
+```
+
+#### 设置用户主部门
+```bash
+curl -X POST "http://localhost:8080/api/user-department/set-primary?userId=1&departmentId=3"
+```
+
+#### 从部门移除用户
+```bash
+curl -X DELETE "http://localhost:8080/api/user-department/remove?userId=1&departmentId=3"
+```
+
+#### 查询用户所在的所有部门
+```bash
+curl -X GET "http://localhost:8080/api/user-department/user/1"
+```
+
+#### 查询部门下的所有用户
+```bash
+curl -X GET "http://localhost:8080/api/user-department/department/3?current=1&size=10"
+```
+
+#### 用户部门调动
+```bash
+curl -X PUT "http://localhost:8080/api/user-department/transfer" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": 1,
+    "fromDepartmentId": 3,
+    "toDepartmentId": 5,
+    "transferPrimary": true
+  }'
+```
+
+## API文档访问
+
+启动应用后，可以通过以下地址访问Swagger文档：
+
+- Swagger UI: `http://localhost:8080/doc.html` (Knife4j界面)
+- OpenAPI JSON: `http://localhost:8080/v3/api-docs`
+
+## 缓存机制说明
+
+以下操作会自动清除相关缓存：
+- 用户角色分配/撤销 -> 清除用户权限缓存
+- 角色权限分配/撤销 -> 清除角色权限缓存和权限树缓存
+- 用户部门变更 -> 相关联的权限缓存可能需要刷新
+
+缓存Key规范：
+- 用户权限: `user:permissions:{userId}`
+- 用户菜单: `user:menus:{userId}`
+- 用户按钮: `user:buttons:{userId}`
+- 用户API: `user:apis:{userId}`
+- 角色权限: `role:permissions:{roleId}`
+
+## 数据验证规则
+
+1. **用户角色分配**:
+   - userId和roleId必填
+   - 验证用户和角色是否存在
+   - 防止重复分配
+
+2. **角色权限分配**:
+   - roleId和permissionId必填
+   - 验证角色和权限是否存在
+   - 防止重复分配
+
+3. **用户部门分配**:
+   - userId和departmentId必填
+   - 验证用户和部门是否存在
+   - 主部门互斥（同一用户只能有一个主部门）
+
+## 时间有效期逻辑
+
+支持时间有效期的关联关系：
+- **用户-角色**: effectiveFrom, effectiveTo
+- **角色-权限**: effectiveFrom, effectiveTo
+- **用户-部门**: effectiveFrom, effectiveTo
+
+查询生效数据时会自动过滤：
+- 当前时间 >= effectiveFrom（如果设置）
+- 当前时间 <= effectiveTo（如果设置）
+- isActive = 1
