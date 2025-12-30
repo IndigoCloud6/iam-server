@@ -1,5 +1,6 @@
 package com.xudis.iam.common;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.validation.BindException;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
  * @author MaxYun
  * @since 2025/12/29
  */
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -24,6 +26,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(BusinessException.class)
     public Result<String> handleBusinessException(BusinessException e) {
+        log.error("业务异常: {}", e.getMessage());
         return Result.error(e.getCode(), e.getMessage());
     }
 
@@ -35,6 +38,7 @@ public class GlobalExceptionHandler {
         String message = e.getBindingResult().getFieldErrors().stream()
                 .map(FieldError::getDefaultMessage)
                 .collect(Collectors.joining("; "));
+        log.error("参数校验异常: {}", message);
         return Result.error(400, "参数校验失败: " + message);
     }
 
@@ -46,6 +50,7 @@ public class GlobalExceptionHandler {
         String message = e.getBindingResult().getFieldErrors().stream()
                 .map(FieldError::getDefaultMessage)
                 .collect(Collectors.joining("; "));
+        log.error("参数绑定异常: {}", message);
         return Result.error(400, "参数绑定失败: " + message);
     }
 
@@ -54,6 +59,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(DataIntegrityViolationException.class)
     public Result<String> handleDataIntegrityViolationException(DataIntegrityViolationException e) {
+        log.error("数据库异常: {}", e.getMessage());
         return Result.error(500, "数据库操作失败: 违反数据完整性约束");
     }
 
@@ -62,6 +68,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(RedisConnectionFailureException.class)
     public Result<String> handleRedisConnectionFailureException(RedisConnectionFailureException e) {
+        log.error("Redis连接异常: {}", e.getMessage());
         return Result.error(500, "Redis连接失败");
     }
 
@@ -70,6 +77,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public Result<String> handleIllegalArgumentException(IllegalArgumentException e) {
+        log.error("非法参数异常: {}", e.getMessage());
         return Result.error(400, e.getMessage());
     }
 
@@ -78,7 +86,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(RuntimeException.class)
     public Result<String> handleRuntimeException(RuntimeException e) {
-        e.printStackTrace();
+        log.error("运行时异常", e);
         return Result.error(500, e.getMessage());
     }
 
@@ -87,7 +95,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public Result<String> handleException(Exception e) {
-        e.printStackTrace();
+        log.error("系统异常", e);
         return Result.error(500, "系统内部错误: " + e.getMessage());
     }
 }

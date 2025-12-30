@@ -7,7 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xudis.iam.dto.CreateUserRequest;
 import com.xudis.iam.dto.UpdateUserRequest;
 import com.xudis.iam.entity.User;
-import com.xudis.iam.exception.BusinessException;
+import com.xudis.iam.common.BusinessException;
 import com.xudis.iam.mapper.UserMapper;
 import com.xudis.iam.service.UserService;
 import com.xudis.iam.util.PasswordEncoder;

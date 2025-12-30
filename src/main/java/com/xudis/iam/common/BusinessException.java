@@ -1,13 +1,19 @@
 package com.xudis.iam.common;
 
+import lombok.Getter;
+
+import java.io.Serial;
+
 /**
  * 业务异常类
  *
  * @author MaxYun
  * @since 2025/12/29
  */
+@Getter
 public class BusinessException extends RuntimeException {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -33,10 +39,6 @@ public class BusinessException extends RuntimeException {
     public BusinessException(Integer code, String message, Throwable cause) {
         super(message, cause);
         this.code = code;
-    }
-
-    public Integer getCode() {
-        return code;
     }
 
     public void setCode(Integer code) {
