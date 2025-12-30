@@ -10,8 +10,8 @@ import com.xudis.iam.dto.UpdateDictItemRequest;
 import com.xudis.iam.entity.Dict;
 import com.xudis.iam.entity.DictItem;
 import com.xudis.iam.mapper.DictItemMapper;
+import com.xudis.iam.mapper.DictMapper;
 import com.xudis.iam.service.DictItemService;
-import com.xudis.iam.service.DictService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,7 +31,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DictItemServiceImpl extends ServiceImpl<DictItemMapper, DictItem> implements DictItemService {
 
-    private final DictService dictService;
+    private final DictMapper dictMapper;
 
     @Override
     public List<DictItem> getItemsByDictId(Long dictId) {
@@ -44,10 +44,15 @@ public class DictItemServiceImpl extends ServiceImpl<DictItemMapper, DictItem> i
 
     @Override
     public List<DictItem> getItemsByDictCode(String dictCode) {
-        Dict dict = dictService.getByDictCode(dictCode);
+        // 通过 dictCode 查询 dict
+        LambdaQueryWrapper<Dict> dictWrapper = new LambdaQueryWrapper<>();
+        dictWrapper.eq(Dict::getDictCode, dictCode);
+        Dict dict = dictMapper.selectOne(dictWrapper);
+
         if (dict == null) {
             return List.of();
         }
+
         return getItemsByDictId(dict.getId());
     }
 
@@ -72,7 +77,7 @@ public class DictItemServiceImpl extends ServiceImpl<DictItemMapper, DictItem> i
     @Transactional(rollbackFor = Exception.class)
     public DictItem createDictItem(CreateDictItemRequest request) {
         // 检查字典是否存在
-        Dict dict = dictService.getById(request.getDictId());
+        Dict dict = dictMapper.selectById(request.getDictId());
         if (dict == null) {
             throw new BusinessException("字典不存在: " + request.getDictId());
         }

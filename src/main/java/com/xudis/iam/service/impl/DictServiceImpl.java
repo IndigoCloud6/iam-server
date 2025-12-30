@@ -8,9 +8,7 @@ import com.xudis.iam.common.BusinessException;
 import com.xudis.iam.dto.CreateDictRequest;
 import com.xudis.iam.dto.UpdateDictRequest;
 import com.xudis.iam.entity.Dict;
-import com.xudis.iam.entity.DictItem;
 import com.xudis.iam.mapper.DictMapper;
-import com.xudis.iam.service.DictItemService;
 import com.xudis.iam.service.DictService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +28,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements DictService {
-
-    private final DictItemService dictItemService;
 
     @Override
     public Dict getByDictCode(String dictCode) {
@@ -119,15 +115,7 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
 
     @Override
     public List<Dict> listDictsWithItems() {
-        List<Dict> dicts = this.list();
-
-        // 为每个字典加载字典项
-        for (Dict dict : dicts) {
-            List<DictItem> items = dictItemService.getItemsByDictId(dict.getId());
-            // 可以通过反射或者其他方式设置到dict中
-            // 这里简化处理，在VO层组装
-        }
-
-        return dicts;
+        // 只返回字典列表，字典项在 Controller 层通过 DictItemService 查询并组装
+        return this.list();
     }
 }

@@ -6,6 +6,8 @@ import com.xudis.iam.dto.CreateConfigRequest;
 import com.xudis.iam.dto.UpdateConfigRequest;
 import com.xudis.iam.entity.Config;
 
+import java.util.List;
+
 /**
  * 系统配置服务接口
  *
