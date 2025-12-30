@@ -63,15 +63,17 @@ public class CreateRoleRequest {
     /**
      * 生效时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Schema(description = "生效时间", example = "2025-01-01 00:00:00")
+    @Schema(description = "生效时间（支持各种时区，自动转换为上海时区）\n" +
+            "示例: \"2025-01-01T00:00:00Z\" (UTC) 或 \"2025-01-01T08:00:00+08:00\" (上海) 或 \"2025-01-01 00:00:00\"",
+            example = "2025-01-01T00:00:00Z")
     private LocalDateTime effectiveFrom;
 
     /**
      * 失效时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Schema(description = "失效时间", example = "2025-12-31 23:59:59")
+    @Schema(description = "失效时间（支持各种时区，自动转换为上海时区）\n" +
+            "示例: \"2025-12-31T23:59:59Z\" (UTC) 或 \"2026-01-01T07:59:59+08:00\" (上海) 或 \"2025-12-31 23:59:59\"",
+            example = "2025-12-31T23:59:59Z")
     private LocalDateTime effectiveTo;
 
     /**

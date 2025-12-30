@@ -67,15 +67,13 @@ public class UpdateRoleRequest {
     /**
      * 生效时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Schema(description = "生效时间", example = "2025-01-01 00:00:00")
+    @Schema(description = "生效时间（支持各种时区，自动转换为上海时区）", example = "2025-01-01T00:00:00Z")
     private LocalDateTime effectiveFrom;
 
     /**
      * 失效时间
      */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Schema(description = "失效时间", example = "2025-12-31 23:59:59")
+    @Schema(description = "失效时间（支持各种时区，自动转换为上海时区）", example = "2025-12-31T23:59:59Z")
     private LocalDateTime effectiveTo;
 
     /**
