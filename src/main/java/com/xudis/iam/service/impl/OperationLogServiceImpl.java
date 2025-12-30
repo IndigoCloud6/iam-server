@@ -31,20 +31,20 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
 
     @Override
     public Page<OperationLog> pageLogs(Page<OperationLog> page, String module, String operationType,
-                                       Long operatorId, Integer status, String startTime, String endTime) {
+                                       Long userId, Integer status, String startTime, String endTime) {
         LambdaQueryWrapper<OperationLog> wrapper = new LambdaQueryWrapper<>();
 
         if (StringUtils.hasText(module)) {
-            wrapper.eq(OperationLog::getModule, module);
+            wrapper.eq(OperationLog::getOperationModule, module);
         }
         if (StringUtils.hasText(operationType)) {
             wrapper.eq(OperationLog::getOperationType, operationType);
         }
-        if (operatorId != null) {
-            wrapper.eq(OperationLog::getOperatorId, operatorId);
+        if (userId != null) {
+            wrapper.eq(OperationLog::getUserId, userId);
         }
         if (status != null) {
-            wrapper.eq(OperationLog::getStatus, status);
+            wrapper.eq(OperationLog::getResponseStatus, status);
         }
         if (StringUtils.hasText(startTime)) {
             wrapper.ge(OperationLog::getOperationTime, parseDateTime(startTime));
@@ -60,7 +60,7 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
     @Override
     public List<OperationLog> getUserOperations(Long userId) {
         LambdaQueryWrapper<OperationLog> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(OperationLog::getOperatorId, userId);
+        wrapper.eq(OperationLog::getUserId, userId);
         wrapper.orderByDesc(OperationLog::getOperationTime);
         wrapper.last("LIMIT 100");
         return this.list(wrapper);
@@ -69,7 +69,7 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
     @Override
     public List<OperationLog> getModuleOperations(String module) {
         LambdaQueryWrapper<OperationLog> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(OperationLog::getModule, module);
+        wrapper.eq(OperationLog::getOperationModule, module);
         wrapper.orderByDesc(OperationLog::getOperationTime);
         wrapper.last("LIMIT 100");
         return this.list(wrapper);
@@ -102,23 +102,23 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
 
         // 成功操作数
         LambdaQueryWrapper<OperationLog> successWrapper = new LambdaQueryWrapper<>();
-        successWrapper.eq(OperationLog::getStatus, 1);
+        successWrapper.eq(OperationLog::getResponseStatus, 200);
         long successCount = this.count(successWrapper);
         stats.put("successCount", successCount);
 
         // 失败操作数
         LambdaQueryWrapper<OperationLog> failWrapper = new LambdaQueryWrapper<>();
-        failWrapper.eq(OperationLog::getStatus, 0);
+        failWrapper.ne(OperationLog::getResponseStatus, 200);
         long failCount = this.count(failWrapper);
         stats.put("failCount", failCount);
 
         // 平均执行时长
         LambdaQueryWrapper<OperationLog> avgWrapper = new LambdaQueryWrapper<>();
-        avgWrapper.isNotNull(OperationLog::getDuration);
+        avgWrapper.isNotNull(OperationLog::getExecuteTime);
         List<OperationLog> logsWithDuration = this.list(avgWrapper);
         if (!logsWithDuration.isEmpty()) {
             double avgDuration = logsWithDuration.stream()
-                    .mapToLong(OperationLog::getDuration)
+                    .mapToLong(OperationLog::getExecuteTime)
                     .average()
                     .orElse(0.0);
             stats.put("avgDuration", avgDuration);

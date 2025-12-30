@@ -59,28 +59,32 @@ public class OperationLogAspect {
             // 获取请求信息
             HttpServletRequest request = WebUtils.getCurrentRequest();
             String requestMethod = WebUtils.getRequestMethod();
-            String requestUrl = WebUtils.getRequestUri();
+            String requestUri = WebUtils.getRequestUri();
             String clientIp = WebUtils.getClientIp();
             String userAgent = WebUtils.getUserAgent();
 
             // 设置基本信息
-            operationLog.setModule(annotation.module());
-            operationLog.setOperationType(annotation.operationType());
-            operationLog.setDescription(annotation.description());
-            operationLog.setRequestMethod(requestMethod);
-            operationLog.setRequestUrl(requestUrl);
-            operationLog.setOperatorIp(clientIp);
-            operationLog.setUserAgent(userAgent);
             operationLog.setTraceId(UUID.randomUUID().toString());
+            operationLog.setOperationType(annotation.operationType());
+            operationLog.setOperationModule(annotation.module());
+            operationLog.setOperationDesc(annotation.description());
+            operationLog.setRequestMethod(requestMethod);
+            operationLog.setRequestUri(requestUri);
+            operationLog.setClientIp(clientIp);
+            operationLog.setUserAgent(userAgent);
 
             // TODO: 从认证上下文中获取当前用户信息
-            operationLog.setOperatorId(1L);
-            operationLog.setOperatorName("系统管理员");
+            operationLog.setUserId(1L);
+            operationLog.setUsername("admin");
+            operationLog.setRealName("系统管理员");
 
             // 记录请求参数
             if (annotation.saveParams()) {
-                String params = getRequestParams(joinPoint, request);
-                operationLog.setRequestParams(params);
+                String requestParams = getRequestParams(joinPoint, request);
+                operationLog.setRequestParams(requestParams);
+
+                String requestBody = getRequestBody(joinPoint, request);
+                operationLog.setRequestBody(requestBody);
             }
 
             // 执行目标方法
@@ -88,13 +92,18 @@ public class OperationLogAspect {
 
             // 记录响应结果
             long duration = System.currentTimeMillis() - startTime;
-            operationLog.setDuration(duration);
-            operationLog.setStatus(1); // 成功
+            operationLog.setExecuteTime(duration);
+            operationLog.setResponseStatus(200); // 成功
 
             if (annotation.saveResponse()) {
-                String responseData = objectMapper.writeValueAsString(result);
-                operationLog.setResponseData(responseData);
+                String responseBody = objectMapper.writeValueAsString(result);
+                operationLog.setResponseBody(responseBody);
             }
+
+            // 获取内存使用情况
+            Runtime runtime = Runtime.getRuntime();
+            long usedMemory = runtime.totalMemory() - runtime.freeMemory();
+            operationLog.setMemoryUsed(usedMemory);
 
             // 异步保存日志
             saveOperationLog(operationLog);
@@ -104,9 +113,9 @@ public class OperationLogAspect {
         } catch (Exception e) {
             // 记录失败日志
             long duration = System.currentTimeMillis() - startTime;
-            operationLog.setDuration(duration);
-            operationLog.setStatus(0); // 失败
-            operationLog.setErrorMsg(e.getMessage());
+            operationLog.setExecuteTime(duration);
+            operationLog.setResponseStatus(500); // 失败
+            operationLog.setErrorMessage(e.getMessage());
 
             // 异步保存日志
             saveOperationLog(operationLog);
@@ -116,18 +125,28 @@ public class OperationLogAspect {
     }
 
     /**
-     * 获取请求参数
+     * 获取请求参数（URL参数）
      */
     private String getRequestParams(ProceedingJoinPoint joinPoint, HttpServletRequest request) {
         try {
-            // 优先从 request 中获取参数
-            if (request != null && !isMultipartContent(request)) {
+            if (request != null) {
                 String params = WebUtils.getRequestParams();
                 if (params != null && !params.isEmpty()) {
                     return params;
                 }
             }
+            return "";
+        } catch (Exception e) {
+            log.warn("获取请求参数失败", e);
+            return "";
+        }
+    }
 
+    /**
+     * 获取请求体
+     */
+    private String getRequestBody(ProceedingJoinPoint joinPoint, HttpServletRequest request) {
+        try {
             // 从方法参数中获取
             Object[] args = joinPoint.getArgs();
             if (args == null || args.length == 0) {
@@ -135,38 +154,27 @@ public class OperationLogAspect {
             }
 
             // 过滤掉不能序列化的参数（如 MultipartFile）
-            StringBuilder params = new StringBuilder();
+            StringBuilder requestBody = new StringBuilder();
             for (Object arg : args) {
                 if (arg == null) {
                     continue;
                 }
                 // 跳过文件类型和 HttpServletRequest/Response
                 if (arg instanceof MultipartFile ||
-                    arg instanceof HttpServletRequest ||
-                    arg instanceof jakarta.servlet.http.HttpServletResponse) {
+                        arg instanceof HttpServletRequest ||
+                        arg instanceof jakarta.servlet.http.HttpServletResponse) {
                     continue;
                 }
                 String paramStr = objectMapper.writeValueAsString(arg);
-                params.append(paramStr).append("; ");
+                requestBody.append(paramStr).append("; ");
             }
 
-            return params.toString();
+            return requestBody.toString();
 
         } catch (Exception e) {
-            log.warn("获取请求参数失败", e);
-            return "参数解析失败";
+            log.warn("获取请求体失败", e);
+            return "请求体解析失败";
         }
-    }
-
-    /**
-     * 判断是否是文件上传请求
-     */
-    private boolean isMultipartContent(HttpServletRequest request) {
-        if (request == null) {
-            return false;
-        }
-        String contentType = request.getContentType();
-        return contentType != null && contentType.toLowerCase().startsWith("multipart/");
     }
 
     /**

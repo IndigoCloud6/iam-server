@@ -36,13 +36,13 @@ public class OperationLogController {
             @RequestParam(defaultValue = "10") Long size,
             @RequestParam(required = false) String module,
             @RequestParam(required = false) String operationType,
-            @RequestParam(required = false) Long operatorId,
+            @RequestParam(required = false) Long userId,
             @RequestParam(required = false) Integer status,
             @RequestParam(required = false) String startTime,
             @RequestParam(required = false) String endTime) {
         Page<OperationLog> page = new Page<>(current, size);
         Page<OperationLog> result = operationLogService.pageLogs(page, module, operationType,
-                operatorId, status, startTime, endTime);
+                userId, status, startTime, endTime);
         return Result.success(result);
     }
 

@@ -18,17 +18,17 @@ public interface OperationLogService extends IService<OperationLog> {
     /**
      * 分页查询操作日志
      *
-     * @param page        分页对象
-     * @param module      模块
+     * @param page         分页对象
+     * @param module       模块
      * @param operationType 操作类型
-     * @param operatorId  操作人ID
-     * @param status      状态
-     * @param startTime  开始时间
-     * @param endTime    结束时间
+     * @param userId       用户ID
+     * @param status       状态
+     * @param startTime    开始时间
+     * @param endTime      结束时间
      * @return 分页结果
      */
     Page<OperationLog> pageLogs(Page<OperationLog> page, String module, String operationType,
-                                 Long operatorId, Integer status, String startTime, String endTime);
+                                 Long userId, Integer status, String startTime, String endTime);
 
     /**
      * 查询用户操作历史

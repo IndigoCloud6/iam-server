@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
@@ -16,9 +15,8 @@ import java.time.LocalDateTime;
  * @since 2025/12/30
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @TableName("sys_permission_change_log")
-public class PermissionChangeLog extends BaseEntity {
+public class PermissionChangeLog {
 
     /**
      * 日志ID
@@ -27,12 +25,12 @@ public class PermissionChangeLog extends BaseEntity {
     private Long id;
 
     /**
-     * 变更类型: GRANT-授权, REVOKE-撤销, MODIFY-修改
+     * 变更类型: GRANT-授权, REVOKE-撤销, UPDATE-修改
      */
     private String changeType;
 
     /**
-     * 目标类型: USER-用户, ROLE-角色, DEPARTMENT-部门
+     * 目标类型: USER-用户, ROLE-角色, GROUP-用户组
      */
     private String targetType;
 
@@ -42,19 +40,9 @@ public class PermissionChangeLog extends BaseEntity {
     private Long targetId;
 
     /**
-     * 目标名称
-     */
-    private String targetName;
-
-    /**
      * 权限ID
      */
     private Long permissionId;
-
-    /**
-     * 权限名称
-     */
-    private String permissionName;
 
     /**
      * 权限编码
@@ -82,23 +70,18 @@ public class PermissionChangeLog extends BaseEntity {
     private String operatorName;
 
     /**
-     * 操作IP
-     */
-    private String operatorIp;
-
-    /**
      * 变更原因
      */
     private String changeReason;
+
+    /**
+     * 工单ID
+     */
+    private String ticketId;
 
     /**
      * 变更时间
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime changeTime;
-
-    /**
-     * 是否生效: 1-是, 0-否
-     */
-    private Integer effective;
 }

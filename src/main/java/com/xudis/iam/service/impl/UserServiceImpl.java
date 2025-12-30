@@ -57,6 +57,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException("用户名已存在: " + request.getUsername());
         }
 
+        // 检查手机号是否已存在
+        if (StringUtils.hasText(request.getMobile())) {
+            LambdaQueryWrapper<User> mobileWrapper = new LambdaQueryWrapper<>();
+            mobileWrapper.eq(User::getMobile, request.getMobile());
+            User existingMobileUser = this.getOne(mobileWrapper);
+            if (existingMobileUser != null) {
+                throw new BusinessException("手机号已被注册: " + request.getMobile());
+            }
+        }
+
+        // 检查邮箱是否已存在
+        if (StringUtils.hasText(request.getEmail())) {
+            LambdaQueryWrapper<User> emailWrapper = new LambdaQueryWrapper<>();
+            emailWrapper.eq(User::getEmail, request.getEmail());
+            User existingEmailUser = this.getOne(emailWrapper);
+            if (existingEmailUser != null) {
+                throw new BusinessException("邮箱已被注册: " + request.getEmail());
+            }
+        }
+
         // 创建用户实体
         User user = new User();
         BeanUtil.copyProperties(request, user);

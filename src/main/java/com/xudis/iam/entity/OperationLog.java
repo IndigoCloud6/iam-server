@@ -1,11 +1,11 @@
 package com.xudis.iam.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
@@ -16,9 +16,8 @@ import java.time.LocalDateTime;
  * @since 2025/12/30
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @TableName("sys_operation_log")
-public class OperationLog extends BaseEntity {
+public class OperationLog {
 
     /**
      * 日志ID
@@ -27,20 +26,49 @@ public class OperationLog extends BaseEntity {
     private Long id;
 
     /**
-     * 操作模块
+     * 请求跟踪ID
      */
-    private String module;
+    private String traceId;
 
     /**
-     * 操作类型: LOGIN-登录, LOGOUT-登出, CREATE-新增, UPDATE-更新, DELETE-删除,
-     * QUERY-查询, EXPORT-导出, IMPORT-导入, OTHER-其他
+     * 操作用户ID
+     */
+    private Long userId;
+
+    /**
+     * 用户名
+     */
+    private String username;
+
+    /**
+     * 真实姓名
+     */
+    private String realName;
+
+    /**
+     * 部门ID
+     */
+    private Long departmentId;
+
+    /**
+     * 操作类型
      */
     private String operationType;
 
     /**
+     * 操作模块
+     */
+    private String operationModule;
+
+    /**
+     * 操作目标
+     */
+    private String operationTarget;
+
+    /**
      * 操作描述
      */
-    private String description;
+    private String operationDesc;
 
     /**
      * 请求方法
@@ -48,9 +76,9 @@ public class OperationLog extends BaseEntity {
     private String requestMethod;
 
     /**
-     * 请求URL
+     * 请求URI
      */
-    private String requestUrl;
+    private String requestUri;
 
     /**
      * 请求参数
@@ -58,44 +86,29 @@ public class OperationLog extends BaseEntity {
     private String requestParams;
 
     /**
-     * 响应结果
+     * 请求体
      */
-    private String responseData;
+    private String requestBody;
 
     /**
-     * 操作状态: 1-成功, 0-失败
+     * 响应状态码
      */
-    private Integer status;
+    private Integer responseStatus;
+
+    /**
+     * 响应体
+     */
+    private String responseBody;
 
     /**
      * 错误信息
      */
-    private String errorMsg;
+    private String errorMessage;
 
     /**
-     * 执行时长(毫秒)
+     * 客户端IP
      */
-    private Long duration;
-
-    /**
-     * 操作人ID
-     */
-    private Long operatorId;
-
-    /**
-     * 操作人姓名
-     */
-    private String operatorName;
-
-    /**
-     * 操作IP
-     */
-    private String operatorIp;
-
-    /**
-     * 操作地点
-     */
-    private String operatorLocation;
+    private String clientIp;
 
     /**
      * 用户代理
@@ -103,9 +116,19 @@ public class OperationLog extends BaseEntity {
     private String userAgent;
 
     /**
-     * 跟踪ID（用于分布式追踪）
+     * 登录地点
      */
-    private String traceId;
+    private String location;
+
+    /**
+     * 执行时间(毫秒)
+     */
+    private Long executeTime;
+
+    /**
+     * 内存使用(字节)
+     */
+    private Long memoryUsed;
 
     /**
      * 操作时间
