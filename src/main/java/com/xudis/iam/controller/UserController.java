@@ -1,7 +1,7 @@
 package com.xudis.iam.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.xudis.iam.annotation.OperationLog;
+import com.xudis.iam.annotation.LogOperation;
 import com.xudis.iam.common.Result;
 import com.xudis.iam.dto.CreateUserRequest;
 import com.xudis.iam.dto.UpdateUserRequest;
@@ -32,7 +32,7 @@ public class UserController {
      */
     @GetMapping("/page")
     @Operation(summary = "分页查询用户列表")
-    @OperationLog(module = "用户管理", operationType = "QUERY", description = "分页查询用户列表")
+    @LogOperation(module = "用户管理", operationType = "QUERY", description = "分页查询用户列表")
     public Result<Page<User>> page(
             @RequestParam(defaultValue = "1") Long current,
             @RequestParam(defaultValue = "10") Long size,
@@ -68,7 +68,7 @@ public class UserController {
      */
     @PostMapping
     @Operation(summary = "新增用户")
-    @OperationLog(module = "用户管理", operationType = "CREATE", description = "新增用户", saveResponse = true)
+    @LogOperation(module = "用户管理", operationType = "CREATE", description = "新增用户", saveResponse = true)
     public Result<User> save(@Valid @RequestBody CreateUserRequest request) {
         User user = userService.createUser(request);
         return Result.success(user);
@@ -79,7 +79,7 @@ public class UserController {
      */
     @PutMapping
     @Operation(summary = "更新用户")
-    @OperationLog(module = "用户管理", operationType = "UPDATE", description = "更新用户信息")
+    @LogOperation(module = "用户管理", operationType = "UPDATE", description = "更新用户信息")
     public Result<Boolean> update(@Valid @RequestBody UpdateUserRequest request) {
         boolean result = userService.updateUser(request);
         return result ? Result.success(result) : Result.error("更新用户失败");
@@ -90,7 +90,7 @@ public class UserController {
      */
     @DeleteMapping("/{id}")
     @Operation(summary = "删除用户")
-    @OperationLog(module = "用户管理", operationType = "DELETE", description = "删除用户")
+    @LogOperation(module = "用户管理", operationType = "DELETE", description = "删除用户")
     public Result<Boolean> delete(@PathVariable Long id) {
         boolean result = userService.removeById(id);
         return result ? Result.success(result) : Result.error("删除用户失败");

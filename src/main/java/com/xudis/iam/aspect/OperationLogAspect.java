@@ -1,8 +1,7 @@
 package com.xudis.iam.aspect;
 
-import cn.hutool.extra.servlet.ServletUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.xudis.iam.annotation.OperationLog as OperationLogAnnotation;
+import com.xudis.iam.annotation.LogOperation;
 import com.xudis.iam.entity.OperationLog;
 import com.xudis.iam.service.OperationLogService;
 import com.xudis.iam.util.WebUtils;
@@ -37,9 +36,9 @@ public class OperationLogAspect {
     private final ObjectMapper objectMapper;
 
     /**
-     * 定义切点：拦截所有带 @OperationLog 注解的方法
+     * 定义切点：拦截所有带 @LogOperation 注解的方法
      */
-    @Pointcut("@annotation(com.xudis.iam.annotation.OperationLog)")
+    @Pointcut("@annotation(com.xudis.iam.annotation.LogOperation)")
     public void operationLogPointcut() {
     }
 
@@ -55,7 +54,7 @@ public class OperationLogAspect {
             // 获取注解信息
             MethodSignature signature = (MethodSignature) joinPoint.getSignature();
             Method method = signature.getMethod();
-            OperationLogAnnotation annotation = method.getAnnotation(OperationLogAnnotation.class);
+            LogOperation annotation = method.getAnnotation(LogOperation.class);
 
             // 获取请求信息
             HttpServletRequest request = WebUtils.getCurrentRequest();
