@@ -12,6 +12,7 @@ import com.xudis.iam.entity.UserPermission;
 import com.xudis.iam.mapper.UserPermissionMapper;
 import com.xudis.iam.service.PermissionService;
 import com.xudis.iam.service.RolePermissionService;
+import com.xudis.iam.service.UserService;
 import com.xudis.iam.service.UserPermissionService;
 import com.xudis.iam.service.UserRoleService;
 import com.xudis.iam.vo.UserAllPermissionsVO;
@@ -35,12 +36,16 @@ public class UserPermissionServiceImpl extends ServiceImpl<UserPermissionMapper,
     private final UserRoleService userRoleService;
     private final RolePermissionService rolePermissionService;
     private final PermissionService permissionService;
+    private final UserService userService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean assignPermission(UserPermissionAssignDTO dto) {
         // 检查用户是否存在
-        // TODO: 调用 UserService 检查用户
+        com.xudis.iam.entity.User user = userService.getById(dto.getUserId());
+        if (user == null) {
+            throw new BusinessException("用户不存在: " + dto.getUserId());
+        }
 
         // 检查权限是否存在
         Permission permission = permissionService.getById(dto.getPermissionId());
@@ -76,7 +81,10 @@ public class UserPermissionServiceImpl extends ServiceImpl<UserPermissionMapper,
     @Transactional(rollbackFor = Exception.class)
     public boolean batchAssignPermission(BatchUserPermissionAssignDTO dto) {
         // 检查用户是否存在
-        // TODO: 调用 UserService 检查用户
+        com.xudis.iam.entity.User user = userService.getById(dto.getUserId());
+        if (user == null) {
+            throw new BusinessException("用户不存在: " + dto.getUserId());
+        }
 
         // 检查权限是否存在
         List<Permission> permissions = permissionService.listByIds(dto.getPermissionIds());

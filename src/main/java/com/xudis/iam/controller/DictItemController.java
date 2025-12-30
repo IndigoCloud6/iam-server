@@ -1,5 +1,6 @@
 package com.xudis.iam.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.xudis.iam.annotation.LogOperation;
 import com.xudis.iam.common.Result;
@@ -84,8 +85,19 @@ public class DictItemController {
     @Operation(summary = "删除字典项")
     @LogOperation(module = "字典管理", operationType = "DELETE", description = "删除字典项")
     public Result<Boolean> delete(@PathVariable Long id) {
+        // 检查字典项是否存在
+        com.xudis.iam.entity.DictItem dictItem = dictItemService.getById(id);
+        if (dictItem == null) {
+            return Result.error("字典项不存在");
+        }
+
         // 检查是否有子项
-        // TODO: 实现子项检查逻辑
+        LambdaQueryWrapper<DictItem> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(DictItem::getParentId, id);
+        long childCount = dictItemService.count(wrapper);
+        if (childCount > 0) {
+            return Result.error("该字典项下还有子项，无法删除");
+        }
 
         boolean result = dictItemService.removeById(id);
         return result ? Result.success(result) : Result.error("删除字典项失败");
