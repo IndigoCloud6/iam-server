@@ -2,6 +2,8 @@ package com.xudis.iam.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.xudis.iam.dto.CreateRoleRequest;
+import com.xudis.iam.dto.UpdateRoleRequest;
 import com.xudis.iam.entity.Role;
 
 /**
@@ -29,4 +31,20 @@ public interface RoleService extends IService<Role> {
      * @return 分页结果
      */
     Page<Role> pageRoles(Page<Role> page, String roleCode, String roleName);
+
+    /**
+     * 创建角色
+     *
+     * @param request 创建角色请求
+     * @return 创建的角色信息
+     */
+    Role createRole(CreateRoleRequest request);
+
+    /**
+     * 更新角色
+     *
+     * @param request 更新角色请求
+     * @return 是否更新成功
+     */
+    boolean updateRole(UpdateRoleRequest request);
 }

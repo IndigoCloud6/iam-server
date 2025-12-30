@@ -1,11 +1,16 @@
 package com.xudis.iam.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xudis.iam.annotation.LogOperation;
 import com.xudis.iam.common.Result;
+import com.xudis.iam.dto.CreatePermissionRequest;
+import com.xudis.iam.dto.UpdatePermissionRequest;
 import com.xudis.iam.entity.Permission;
 import com.xudis.iam.service.PermissionService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/permission")
 @RequiredArgsConstructor
+@Tag(name = "权限管理", description = "权限相关接口")
 public class PermissionController {
 
     private final PermissionService permissionService;
@@ -27,6 +33,8 @@ public class PermissionController {
      * 查询权限树
      */
     @GetMapping("/tree")
+    @Operation(summary = "查询权限树")
+    @LogOperation(module = "权限管理", operationType = "QUERY", description = "查询权限树")
     public Result<List<Permission>> tree() {
         List<Permission> list = permissionService.getPermissionTree();
         return Result.success(list);
@@ -36,6 +44,8 @@ public class PermissionController {
      * 分页查询权限列表
      */
     @GetMapping("/page")
+    @Operation(summary = "分页查询权限列表")
+    @LogOperation(module = "权限管理", operationType = "QUERY", description = "分页查询权限列表")
     public Result<Page<Permission>> page(
             @RequestParam(defaultValue = "1") Long current,
             @RequestParam(defaultValue = "10") Long size,
@@ -50,6 +60,7 @@ public class PermissionController {
      * 根据ID查询权限
      */
     @GetMapping("/{id}")
+    @Operation(summary = "根据ID查询权限")
     public Result<Permission> getById(@PathVariable Long id) {
         Permission permission = permissionService.getById(id);
         return Result.success(permission);
@@ -59,6 +70,7 @@ public class PermissionController {
      * 根据权限编码查询权限
      */
     @GetMapping("/code/{permCode}")
+    @Operation(summary = "根据权限编码查询权限")
     public Result<Permission> getByPermCode(@PathVariable String permCode) {
         Permission permission = permissionService.getByPermCode(permCode);
         return Result.success(permission);
@@ -68,17 +80,21 @@ public class PermissionController {
      * 新增权限
      */
     @PostMapping
-    public Result<Boolean> save(@RequestBody Permission permission) {
-        boolean result = permissionService.save(permission);
-        return result ? Result.success(result) : Result.error("新增权限失败");
+    @Operation(summary = "新增权限")
+    @LogOperation(module = "权限管理", operationType = "CREATE", description = "新增权限")
+    public Result<Permission> save(@Valid @RequestBody CreatePermissionRequest request) {
+        Permission permission = permissionService.createPermission(request);
+        return Result.success(permission);
     }
 
     /**
      * 更新权限
      */
     @PutMapping
-    public Result<Boolean> update(@RequestBody Permission permission) {
-        boolean result = permissionService.updateById(permission);
+    @Operation(summary = "更新权限")
+    @LogOperation(module = "权限管理", operationType = "UPDATE", description = "更新权限")
+    public Result<Boolean> update(@Valid @RequestBody UpdatePermissionRequest request) {
+        boolean result = permissionService.updatePermission(request);
         return result ? Result.success(result) : Result.error("更新权限失败");
     }
 
@@ -86,6 +102,8 @@ public class PermissionController {
      * 删除权限
      */
     @DeleteMapping("/{id}")
+    @Operation(summary = "删除权限")
+    @LogOperation(module = "权限管理", operationType = "DELETE", description = "删除权限")
     public Result<Boolean> delete(@PathVariable Long id) {
         boolean result = permissionService.removeById(id);
         return result ? Result.success(result) : Result.error("删除权限失败");

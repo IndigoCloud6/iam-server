@@ -1,11 +1,16 @@
 package com.xudis.iam.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xudis.iam.annotation.LogOperation;
 import com.xudis.iam.common.Result;
+import com.xudis.iam.dto.CreateRoleRequest;
+import com.xudis.iam.dto.UpdateRoleRequest;
 import com.xudis.iam.entity.Role;
 import com.xudis.iam.service.RoleService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -17,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/role")
 @RequiredArgsConstructor
+@Tag(name = "角色管理", description = "角色相关接口")
 public class RoleController {
 
     private final RoleService roleService;
@@ -25,6 +31,8 @@ public class RoleController {
      * 分页查询角色列表
      */
     @GetMapping("/page")
+    @Operation(summary = "分页查询角色列表")
+    @LogOperation(module = "角色管理", operationType = "QUERY", description = "分页查询角色列表")
     public Result<Page<Role>> page(
             @RequestParam(defaultValue = "1") Long current,
             @RequestParam(defaultValue = "10") Long size,
@@ -39,6 +47,7 @@ public class RoleController {
      * 根据ID查询角色
      */
     @GetMapping("/{id}")
+    @Operation(summary = "根据ID查询角色")
     public Result<Role> getById(@PathVariable Long id) {
         Role role = roleService.getById(id);
         return Result.success(role);
@@ -48,6 +57,7 @@ public class RoleController {
      * 根据角色编码查询角色
      */
     @GetMapping("/code/{roleCode}")
+    @Operation(summary = "根据角色编码查询角色")
     public Result<Role> getByRoleCode(@PathVariable String roleCode) {
         Role role = roleService.getByRoleCode(roleCode);
         return Result.success(role);
@@ -57,17 +67,21 @@ public class RoleController {
      * 新增角色
      */
     @PostMapping
-    public Result<Boolean> save(@RequestBody Role role) {
-        boolean result = roleService.save(role);
-        return result ? Result.success(result) : Result.error("新增角色失败");
+    @Operation(summary = "新增角色")
+    @LogOperation(module = "角色管理", operationType = "CREATE", description = "新增角色")
+    public Result<Role> save(@Valid @RequestBody CreateRoleRequest request) {
+        Role role = roleService.createRole(request);
+        return Result.success(role);
     }
 
     /**
      * 更新角色
      */
     @PutMapping
-    public Result<Boolean> update(@RequestBody Role role) {
-        boolean result = roleService.updateById(role);
+    @Operation(summary = "更新角色")
+    @LogOperation(module = "角色管理", operationType = "UPDATE", description = "更新角色")
+    public Result<Boolean> update(@Valid @RequestBody UpdateRoleRequest request) {
+        boolean result = roleService.updateRole(request);
         return result ? Result.success(result) : Result.error("更新角色失败");
     }
 
@@ -75,6 +89,8 @@ public class RoleController {
      * 删除角色
      */
     @DeleteMapping("/{id}")
+    @Operation(summary = "删除角色")
+    @LogOperation(module = "角色管理", operationType = "DELETE", description = "删除角色")
     public Result<Boolean> delete(@PathVariable Long id) {
         boolean result = roleService.removeById(id);
         return result ? Result.success(result) : Result.error("删除角色失败");
