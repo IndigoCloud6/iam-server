@@ -52,6 +52,7 @@ replay_pid*
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
 .idea/**/dbnavigator.xml
+.idea/vcs.xml
 
 # Gradle
 .idea/**/gradle.xml
@@ -111,7 +112,8 @@ fabric.properties
 # that are supposed to be shared within teams.
 
 .idea/*
-
+.mvn/*
+.claude/*
 !.idea/codeStyles
 !.idea/runConfigurations
 
