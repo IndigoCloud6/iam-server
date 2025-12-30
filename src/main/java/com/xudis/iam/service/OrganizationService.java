@@ -2,6 +2,8 @@ package com.xudis.iam.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.xudis.iam.dto.CreateOrganizationRequest;
+import com.xudis.iam.dto.UpdateOrganizationRequest;
 import com.xudis.iam.entity.Organization;
 
 import java.util.List;
@@ -38,4 +40,20 @@ public interface OrganizationService extends IService<Organization> {
      * @return 分页结果
      */
     Page<Organization> pageOrganizations(Page<Organization> page, String orgCode, String orgName);
+
+    /**
+     * 创建组织
+     *
+     * @param request 创建组织请求
+     * @return 创建的组织信息
+     */
+    Organization createOrganization(CreateOrganizationRequest request);
+
+    /**
+     * 更新组织
+     *
+     * @param request 更新组织请求
+     * @return 是否更新成功
+     */
+    boolean updateOrganization(UpdateOrganizationRequest request);
 }

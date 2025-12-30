@@ -1,11 +1,16 @@
 package com.xudis.iam.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xudis.iam.annotation.LogOperation;
 import com.xudis.iam.common.Result;
+import com.xudis.iam.dto.CreateOrganizationRequest;
+import com.xudis.iam.dto.UpdateOrganizationRequest;
 import com.xudis.iam.entity.Organization;
 import com.xudis.iam.service.OrganizationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/organization")
 @RequiredArgsConstructor
+@Tag(name = "组织管理", description = "组织相关接口")
 public class OrganizationController {
 
     private final OrganizationService organizationService;
@@ -27,6 +33,8 @@ public class OrganizationController {
      * 查询组织树
      */
     @GetMapping("/tree")
+    @Operation(summary = "查询组织树")
+    @LogOperation(module = "组织管理", operationType = "QUERY", description = "查询组织树")
     public Result<List<Organization>> tree() {
         List<Organization> list = organizationService.getOrganizationTree();
         return Result.success(list);
@@ -36,6 +44,8 @@ public class OrganizationController {
      * 分页查询组织列表
      */
     @GetMapping("/page")
+    @Operation(summary = "分页查询组织列表")
+    @LogOperation(module = "组织管理", operationType = "QUERY", description = "分页查询组织列表")
     public Result<Page<Organization>> page(
             @RequestParam(defaultValue = "1") Long current,
             @RequestParam(defaultValue = "10") Long size,
@@ -50,6 +60,7 @@ public class OrganizationController {
      * 根据ID查询组织
      */
     @GetMapping("/{id}")
+    @Operation(summary = "根据ID查询组织")
     public Result<Organization> getById(@PathVariable Long id) {
         Organization organization = organizationService.getById(id);
         return Result.success(organization);
@@ -59,6 +70,7 @@ public class OrganizationController {
      * 根据组织编码查询组织
      */
     @GetMapping("/code/{orgCode}")
+    @Operation(summary = "根据组织编码查询组织")
     public Result<Organization> getByOrgCode(@PathVariable String orgCode) {
         Organization organization = organizationService.getByOrgCode(orgCode);
         return Result.success(organization);
@@ -68,17 +80,21 @@ public class OrganizationController {
      * 新增组织
      */
     @PostMapping
-    public Result<Boolean> save(@RequestBody Organization organization) {
-        boolean result = organizationService.save(organization);
-        return result ? Result.success(result) : Result.error("新增组织失败");
+    @Operation(summary = "新增组织")
+    @LogOperation(module = "组织管理", operationType = "CREATE", description = "新增组织")
+    public Result<Organization> save(@Valid @RequestBody CreateOrganizationRequest request) {
+        Organization organization = organizationService.createOrganization(request);
+        return Result.success(organization);
     }
 
     /**
      * 更新组织
      */
     @PutMapping
-    public Result<Boolean> update(@RequestBody Organization organization) {
-        boolean result = organizationService.updateById(organization);
+    @Operation(summary = "更新组织")
+    @LogOperation(module = "组织管理", operationType = "UPDATE", description = "更新组织")
+    public Result<Boolean> update(@Valid @RequestBody UpdateOrganizationRequest request) {
+        boolean result = organizationService.updateOrganization(request);
         return result ? Result.success(result) : Result.error("更新组织失败");
     }
 
@@ -86,6 +102,8 @@ public class OrganizationController {
      * 删除组织
      */
     @DeleteMapping("/{id}")
+    @Operation(summary = "删除组织")
+    @LogOperation(module = "组织管理", operationType = "DELETE", description = "删除组织")
     public Result<Boolean> delete(@PathVariable Long id) {
         boolean result = organizationService.removeById(id);
         return result ? Result.success(result) : Result.error("删除组织失败");

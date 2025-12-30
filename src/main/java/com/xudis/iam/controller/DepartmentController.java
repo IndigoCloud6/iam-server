@@ -1,11 +1,16 @@
 package com.xudis.iam.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.xudis.iam.annotation.LogOperation;
 import com.xudis.iam.common.Result;
+import com.xudis.iam.dto.CreateDepartmentRequest;
+import com.xudis.iam.dto.UpdateDepartmentRequest;
 import com.xudis.iam.entity.Department;
 import com.xudis.iam.service.DepartmentService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/department")
 @RequiredArgsConstructor
+@Tag(name = "部门管理", description = "部门相关接口")
 public class DepartmentController {
 
     private final DepartmentService departmentService;
@@ -27,6 +33,8 @@ public class DepartmentController {
      * 查询部门树
      */
     @GetMapping("/tree")
+    @Operation(summary = "查询部门树")
+    @LogOperation(module = "部门管理", operationType = "QUERY", description = "查询部门树")
     public Result<List<Department>> tree(@RequestParam(required = false) Long orgId) {
         List<Department> list = departmentService.getDepartmentTree(orgId);
         return Result.success(list);
@@ -36,6 +44,8 @@ public class DepartmentController {
      * 分页查询部门列表
      */
     @GetMapping("/page")
+    @Operation(summary = "分页查询部门列表")
+    @LogOperation(module = "部门管理", operationType = "QUERY", description = "分页查询部门列表")
     public Result<Page<Department>> page(
             @RequestParam(defaultValue = "1") Long current,
             @RequestParam(defaultValue = "10") Long size,
@@ -50,6 +60,7 @@ public class DepartmentController {
      * 根据ID查询部门
      */
     @GetMapping("/{id}")
+    @Operation(summary = "根据ID查询部门")
     public Result<Department> getById(@PathVariable Long id) {
         Department department = departmentService.getById(id);
         return Result.success(department);
@@ -59,6 +70,7 @@ public class DepartmentController {
      * 根据部门编码查询部门
      */
     @GetMapping("/code/{deptCode}")
+    @Operation(summary = "根据部门编码查询部门")
     public Result<Department> getByDeptCode(@PathVariable String deptCode) {
         Department department = departmentService.getByDeptCode(deptCode);
         return Result.success(department);
@@ -68,17 +80,21 @@ public class DepartmentController {
      * 新增部门
      */
     @PostMapping
-    public Result<Boolean> save(@RequestBody Department department) {
-        boolean result = departmentService.save(department);
-        return result ? Result.success(result) : Result.error("新增部门失败");
+    @Operation(summary = "新增部门")
+    @LogOperation(module = "部门管理", operationType = "CREATE", description = "新增部门")
+    public Result<Department> save(@Valid @RequestBody CreateDepartmentRequest request) {
+        Department department = departmentService.createDepartment(request);
+        return Result.success(department);
     }
 
     /**
      * 更新部门
      */
     @PutMapping
-    public Result<Boolean> update(@RequestBody Department department) {
-        boolean result = departmentService.updateById(department);
+    @Operation(summary = "更新部门")
+    @LogOperation(module = "部门管理", operationType = "UPDATE", description = "更新部门")
+    public Result<Boolean> update(@Valid @RequestBody UpdateDepartmentRequest request) {
+        boolean result = departmentService.updateDepartment(request);
         return result ? Result.success(result) : Result.error("更新部门失败");
     }
 
@@ -86,6 +102,8 @@ public class DepartmentController {
      * 删除部门
      */
     @DeleteMapping("/{id}")
+    @Operation(summary = "删除部门")
+    @LogOperation(module = "部门管理", operationType = "DELETE", description = "删除部门")
     public Result<Boolean> delete(@PathVariable Long id) {
         boolean result = departmentService.removeById(id);
         return result ? Result.success(result) : Result.error("删除部门失败");

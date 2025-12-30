@@ -2,6 +2,8 @@ package com.xudis.iam.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.xudis.iam.dto.CreateDepartmentRequest;
+import com.xudis.iam.dto.UpdateDepartmentRequest;
 import com.xudis.iam.entity.Department;
 
 import java.util.List;
@@ -39,4 +41,20 @@ public interface DepartmentService extends IService<Department> {
      * @return 分页结果
      */
     Page<Department> pageDepartments(Page<Department> page, String deptCode, String deptName);
+
+    /**
+     * 创建部门
+     *
+     * @param request 创建部门请求
+     * @return 创建的部门信息
+     */
+    Department createDepartment(CreateDepartmentRequest request);
+
+    /**
+     * 更新部门
+     *
+     * @param request 更新部门请求
+     * @return 是否更新成功
+     */
+    boolean updateDepartment(UpdateDepartmentRequest request);
 }
