@@ -3,6 +3,7 @@ package com.xudis.iam.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xudis.iam.common.BusinessException;
+import com.xudis.iam.common.CacheKeyConstants;
 import com.xudis.iam.dto.BatchPermissionAssignDTO;
 import com.xudis.iam.dto.RolePermissionAssignDTO;
 import com.xudis.iam.entity.Permission;
@@ -17,7 +18,8 @@ import com.xudis.iam.util.TreeBuilder;
 import com.xudis.iam.vo.RolePermissionTreeVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,6 +47,7 @@ public class RolePermissionServiceImpl extends ServiceImpl<RolePermissionMapper,
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(value = CacheKeyConstants.ROLE_PERMISSIONS, allEntries = true)
     public boolean assignPermission(RolePermissionAssignDTO dto) {
         // 验证角色是否存在
         Role role = roleMapper.selectById(dto.getRoleId());
@@ -92,6 +95,7 @@ public class RolePermissionServiceImpl extends ServiceImpl<RolePermissionMapper,
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(value = CacheKeyConstants.ROLE_PERMISSIONS, allEntries = true)
     public boolean batchAssignPermission(BatchPermissionAssignDTO dto) {
         // 验证角色是否存在
         Role role = roleMapper.selectById(dto.getRoleId());
@@ -137,6 +141,7 @@ public class RolePermissionServiceImpl extends ServiceImpl<RolePermissionMapper,
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(value = CacheKeyConstants.ROLE_PERMISSIONS, allEntries = true)
     public boolean revokePermission(Long roleId, Long permissionId) {
         LambdaQueryWrapper<RolePermission> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(RolePermission::getRoleId, roleId)
@@ -154,16 +159,19 @@ public class RolePermissionServiceImpl extends ServiceImpl<RolePermissionMapper,
     }
 
     @Override
+    @Cacheable(value = CacheKeyConstants.ROLE_PERMISSIONS, key = "#roleId")
     public List<Permission> getRolePermissions(Long roleId) {
         return baseMapper.selectRolePermissions(roleId);
     }
 
     @Override
+    @Cacheable(value = CacheKeyConstants.ROLE_PERMISSIONS, key = "'roles:' + #permissionId")
     public List<Role> getPermissionRoles(Long permissionId) {
         return baseMapper.selectPermissionRoles(permissionId);
     }
 
     @Override
+    @Cacheable(value = CacheKeyConstants.ROLE_PERMISSIONS, key = "'tree:' + #roleId")
     public List<RolePermissionTreeVO> getPermissionTree(Long roleId) {
         // 查询所有权限
         List<Permission> allPermissions = permissionMapper.selectList(null);

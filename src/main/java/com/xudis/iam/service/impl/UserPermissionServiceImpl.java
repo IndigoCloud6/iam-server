@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.xudis.iam.common.BusinessException;
+import com.xudis.iam.common.CacheKeyConstants;
 import com.xudis.iam.dto.BatchUserPermissionAssignDTO;
 import com.xudis.iam.dto.UserPermissionAssignDTO;
 import com.xudis.iam.entity.Permission;
@@ -17,6 +18,8 @@ import com.xudis.iam.service.UserPermissionService;
 import com.xudis.iam.service.UserRoleService;
 import com.xudis.iam.vo.UserAllPermissionsVO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +43,7 @@ public class UserPermissionServiceImpl extends ServiceImpl<UserPermissionMapper,
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(value = CacheKeyConstants.USER_PERMISSIONS, allEntries = true)
     public boolean assignPermission(UserPermissionAssignDTO dto) {
         // 检查用户是否存在
         com.xudis.iam.entity.User user = userService.getById(dto.getUserId());
@@ -79,6 +83,7 @@ public class UserPermissionServiceImpl extends ServiceImpl<UserPermissionMapper,
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(value = CacheKeyConstants.USER_PERMISSIONS, allEntries = true)
     public boolean batchAssignPermission(BatchUserPermissionAssignDTO dto) {
         // 检查用户是否存在
         com.xudis.iam.entity.User user = userService.getById(dto.getUserId());
@@ -126,6 +131,7 @@ public class UserPermissionServiceImpl extends ServiceImpl<UserPermissionMapper,
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @CacheEvict(value = CacheKeyConstants.USER_PERMISSIONS, allEntries = true)
     public boolean revokePermission(Long userId, Long permissionId) {
         LambdaQueryWrapper<UserPermission> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(UserPermission::getUserId, userId)
@@ -134,6 +140,7 @@ public class UserPermissionServiceImpl extends ServiceImpl<UserPermissionMapper,
     }
 
     @Override
+    @Cacheable(value = CacheKeyConstants.USER_PERMISSIONS, key = "'direct:' + #userId")
     public List<Permission> getUserDirectPermissions(Long userId) {
         // 查询用户的直接权限关联
         LambdaQueryWrapper<UserPermission> wrapper = new LambdaQueryWrapper<>();
@@ -155,6 +162,7 @@ public class UserPermissionServiceImpl extends ServiceImpl<UserPermissionMapper,
     }
 
     @Override
+    @Cacheable(value = CacheKeyConstants.USER_PERMISSIONS, key = "'all:' + #userId")
     public UserAllPermissionsVO getUserAllPermissions(Long userId) {
         UserAllPermissionsVO result = new UserAllPermissionsVO();
         result.setUserId(userId);
@@ -231,6 +239,7 @@ public class UserPermissionServiceImpl extends ServiceImpl<UserPermissionMapper,
     }
 
     @Override
+    @Cacheable(value = CacheKeyConstants.USER_PERMISSIONS, key = "'check:' + #userId + ':' + #permCode")
     public boolean hasPermission(Long userId, String permCode) {
         // 检查直接权限
         List<Permission> directPermissions = getUserDirectPermissions(userId);
@@ -253,6 +262,7 @@ public class UserPermissionServiceImpl extends ServiceImpl<UserPermissionMapper,
     }
 
     @Override
+    @Cacheable(value = CacheKeyConstants.USER_PERMISSIONS, key = "'checkById:' + #userId + ':' + #permissionId")
     public boolean hasPermissionById(Long userId, Long permissionId) {
         // 检查直接权限
         LambdaQueryWrapper<UserPermission> wrapper = new LambdaQueryWrapper<>();
