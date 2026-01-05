@@ -682,4 +682,29 @@ CREATE TABLE `sys_user_role`  (
   CONSTRAINT `sys_user_role_ibfk_3` FOREIGN KEY (`department_id`) REFERENCES `sys_department` (`id`) ON DELETE SET NULL ON UPDATE RESTRICT
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户角色关联表' ROW_FORMAT = Dynamic;
 
+CREATE TABLE `sys_user_permission` (
+       `id` bigint NOT NULL AUTO_INCREMENT COMMENT '关联ID',
+       `user_id` bigint NOT NULL COMMENT '用户ID',
+       `permission_id` bigint NOT NULL COMMENT '权限ID',
+       `grant_type` tinyint DEFAULT 1 COMMENT '授予类型:1-直接授予,2-继承,3-临时授权',
+       `granted_by` bigint DEFAULT NULL COMMENT '授予人ID',
+       `grant_reason` varchar(500) DEFAULT NULL COMMENT '授予原因说明',
+       `operation_type` varchar(100) DEFAULT NULL COMMENT '操作类型',
+       `condition_expression` text COMMENT '条件表达式',
+       `field_filter` json DEFAULT NULL COMMENT '字段过滤规则',
+       `row_filter` json DEFAULT NULL COMMENT '行过滤规则',
+       `effective_from` datetime DEFAULT NULL COMMENT '生效时间',
+       `effective_to` datetime DEFAULT NULL COMMENT '失效时间',
+       `is_enabled` tinyint DEFAULT 1 COMMENT '是否启用:0-禁用,1-启用',
+       `created_by` bigint DEFAULT NULL COMMENT '创建人',
+       `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+       `updated_at` datetime DEFAULT NULL COMMENT '更新时间',
+       PRIMARY KEY (`id`),
+       UNIQUE KEY `uk_user_permission` (`user_id`, `permission_id`),
+       KEY `idx_user_id` (`user_id`),
+       KEY `idx_permission_id` (`permission_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户权限关联表';
+
+
+
 SET FOREIGN_KEY_CHECKS = 1;

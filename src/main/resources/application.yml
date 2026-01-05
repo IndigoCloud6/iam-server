@@ -1,34 +1,39 @@
 server:
-  port: 8080
+  port: 0
   servlet:
     context-path: /api
 
 spring:
   application:
     name: iam-server
-  
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+        username: maxyun
+        password: 1qaz@WSX
+
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/iam_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/platform?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
-    password: root
-  
+    password: 1qaz!QAZ
+
   Jackson:
     time-zone: Asia/Shanghai
     date-format: yyyy-MM-dd HH:mm:ss
     default-property-inclusion: non_null
 
   data:
-    # Redis配置
     redis:
+      host: 127.0.0.1
       port: 6379
-      database: 0
-      host: localhost
-      timeout: 3000ms
+      password: 2wsx@WSX
+      timeout: 6000ms
       lettuce:
         pool:
           max-active: 8
-          max-wait: -1ms
           max-idle: 8
           min-idle: 0
 
@@ -59,6 +64,15 @@ mybatis-plus:
     map-underscore-to-camel-case: true
     # 日志实现
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# SpringDoc OpenAPI 配置
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+
 
 # 日志配置
 logging:
